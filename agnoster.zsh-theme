@@ -77,23 +77,33 @@ prompt_end() {
 # Context: no more user@hostname, instead, time and platform stat
 prompt_context() {
   local hour=$(date +"%H")
-  # REC can be set when running asciinema
-  if [ "$REC" ]; then
-    local hash_sym="#"
+  # [6, 18) is day
+  if [ $hour -ge 6 -a $hour -lt 18 ]; then
+    local period="\uf185"
   else
-    local hash_sym="\uf292 "
-    local logo="\uf300 "
-    # [6, 18) is day
-    if [ $hour -ge 6 -a $hour -lt 18 ]; then
-      local period="\uf185 "
+    local period="\uf186"
+  fi
+
+  # MSYS2 并不支持 /proc/loadavg 这出，所以这里换成了喜闻乐见的 percentage
+  # 我用 Go 写了一个程序(下面的 cpu)来获取 WMIC 提供的 CPU 信息并格式化。
+  # wmic 的输出是 CRLF 换行的，而且还不是 UTF-8，这个东西害我调试了老半天。
+  # 尽管我已经尽力去优化了，这个消耗还是百毫秒级的。
+  # 鉴于此，我提供了 $FAST 变量来切换高速模式。
+  # $FAST 为 1 时为快速模式，关闭 CPU 信息查询。
+  # $FAST 为 2 时为暴走模式，关闭 CPU 和 git 信息查询。
+  if [ ! "$FAST" ]; then
+    local load=$(cpu)%%
+    prompt_segment magenta black " \uf292 $cmdcount \ue0b1 \ue70f $load "
+  else
+    prompt_segment magenta black " \uf292 $cmdcount \ue0b1 \ue70f "
+    if [[ "$FAST" == "1" ]]; then
+      prompt_segment red black " \uf490 " # fire
     else
-      local period="\uf186 "
+      prompt_segment red black " \uf0e7 " # lightening
     fi
   fi
 
-  local load=$(awk '{print $1}' /proc/loadavg)
-  prompt_segment cyan black " $hash_sym$cmdcount \ue0b1 $logo$load "
-  prompt_segment yellow white " %B$period$(date +"%H:%M")%b "
+  prompt_segment yellow white " %B$period $(date +"%H:%M")%b "
 }
 
 # Git: branch/detached head, dirty status
@@ -166,13 +176,17 @@ prompt_agnoster_main() {
   prompt_context
   prompt_virtualenv
   prompt_dir
-  prompt_git
+  if [[ "$FAST" != "2" ]]; then
+    prompt_git
+  fi
   prompt_end
   prompt_newline
 }
 
 prompt_agnoster_precmd() {
-  vcs_info
+  if [[ "$FAST" != "2" ]]; then
+    vcs_info
+  fi
   PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
 }
 
@@ -191,3 +205,27 @@ prompt_agnoster_setup() {
 }
 
 prompt_agnoster_setup "$@"
+
+# 快速模式切换
+f() {
+  if [ ! "$FAST" ]; then
+    export FAST=1
+  elif [[ "$FAST" == "1" ]]; then
+    unset FAST
+  else
+    git config --global --remove-section oh-my-zsh
+    export FAST=1
+  fi
+}
+
+# 暴走模式切换
+fff() {
+  if [[ ! "$FAST" || "$FAST" == "1" ]]; then
+    git config --global oh-my-zsh.hide-status 1
+    git config --global oh-my-zsh.hide-dirty 1
+    export FAST=2
+  else
+    git config --global --remove-section oh-my-zsh
+    unset FAST
+  fi
+}
