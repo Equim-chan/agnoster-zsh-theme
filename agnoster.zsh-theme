@@ -27,7 +27,7 @@
 
 CURRENT_BG='NONE'
 if [[ -z "$PRIMARY_FG" ]]; then
-	PRIMARY_FG=black
+	PRIMARY_FG=8
 fi
 
 # Characters
@@ -35,9 +35,14 @@ SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
-CROSS="\u2718"
+CROSS="×"
 LIGHTNING="\u26a1"
-GEAR="\u2699"
+GEAR="\uf423"
+
+# Command stat
+setopt PROMPT_SUBST
+[[ $cmdcount -ge 1 ]] || cmdcount=1
+preexec() { ((cmdcount++)) }
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -69,13 +74,26 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: user@hostname (who am I and where am I)
+# Context: no more user@hostname, instead, time and platform stat
 prompt_context() {
-  local user=`whoami`
-
-  if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CONNECTION" ]]; then
-    prompt_segment $PRIMARY_FG default " %(!.%{%F{yellow}%}.)$user@%m "
+  local hour=$(date +"%H")
+  # REC can be set when running asciinema
+  if [ "$REC" ]; then
+    local hash_sym="#"
+  else
+    local hash_sym="\uf292 "
+    local logo="\uf300 "
+    # [6, 18) is day
+    if [ $hour -ge 6 -a $hour -lt 18 ]; then
+      local period="\uf185 "
+    else
+      local period="\uf186 "
+    fi
   fi
+
+  local load=$(awk '{print $1}' /proc/loadavg)
+  prompt_segment cyan black " $hash_sym$cmdcount \ue0b1 $logo$load "
+  prompt_segment yellow white " %B$period$(date +"%H:%M")%b "
 }
 
 # Git: branch/detached head, dirty status
@@ -115,7 +133,7 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS $RETVAL"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
 
@@ -131,6 +149,15 @@ prompt_virtualenv() {
   fi
 }
 
+# Newline
+prompt_newline() {
+  if [ $RETVAL -eq 0 ]; then
+    print -n "%{%F{cyan}%}\n╰%{%f%}"
+  else
+    print -n "%{%F{red}%}\n╰%{%f%}"
+  fi
+}
+
 ## Main prompt
 prompt_agnoster_main() {
   RETVAL=$?
@@ -141,6 +168,7 @@ prompt_agnoster_main() {
   prompt_dir
   prompt_git
   prompt_end
+  prompt_newline
 }
 
 prompt_agnoster_precmd() {
