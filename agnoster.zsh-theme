@@ -162,7 +162,7 @@ prompt_virtualenv() {
 # Newline
 prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{cyan}%}\n╰%{%f%}"
+    print -n "%{%F{magenta}%}\n╰%{%f%}"
   else
     print -n "%{%F{red}%}\n╰%{%f%}"
   fi
