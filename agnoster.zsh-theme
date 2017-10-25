@@ -159,12 +159,21 @@ prompt_virtualenv() {
   fi
 }
 
+# Work with prompt_newline
+prompt_begin() {
+  if [ $RETVAL -eq 0 ]; then
+    prompt_segment black magenta "╭─"
+  else
+    prompt_segment black red "╭─"
+  fi
+}
+
 # Newline
 prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{magenta}%}\n╰%{%f%}"
+    print -n "%{%F{magenta}%}\n╰%{%f%}"
   else
-    print -n "%{%F{red}%}\n╰%{%f%}"
+    print -n "%{%F{red}%}\n╰%{%f%}"
   fi
 }
 
@@ -172,6 +181,7 @@ prompt_newline() {
 prompt_agnoster_main() {
   RETVAL=$?
   CURRENT_BG='NONE'
+  prompt_begin
   prompt_status
   prompt_context
   prompt_virtualenv
