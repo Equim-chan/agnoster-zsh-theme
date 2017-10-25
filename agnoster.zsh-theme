@@ -74,26 +74,18 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: no more user@hostname, instead, time and platform stat
+# Context: no more user@hostname, instead, time and platform info and cpu matrics
 prompt_context() {
-  local hour=$(date +"%H")
   # REC can be set when running asciinema
   if [ "$REC" ]; then
     local hash_sym="#"
   else
     local hash_sym="\uf292 "
     local logo="\uf300 "
-    # [6, 18) is day
-    if [ $hour -ge 6 -a $hour -lt 18 ]; then
-      local period="\uf185 "
-    else
-      local period="\uf186 "
-    fi
   fi
 
   local load=$(awk '{print $1}' /proc/loadavg)
-  prompt_segment cyan black " $hash_sym$cmdcount \ue0b1 $logo$load "
-  prompt_segment yellow white " %B$period$(date +"%H:%M")%b "
+  prompt_segment 173 black " $hash_sym$cmdcount \ue0b1 $logo$load "
 }
 
 # Git: branch/detached head, dirty status
@@ -133,9 +125,9 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS $RETVAL"
+  # [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS $RETVAL"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{173}%}$GEAR"
 
   [[ -n "$symbols" ]] && prompt_segment $PRIMARY_FG default " $symbols "
 }
@@ -143,7 +135,7 @@ prompt_status() {
 # Display current virtual environment
 prompt_virtualenv() {
   if [[ -n $VIRTUAL_ENV ]]; then
-    color=cyan
+    color=173
     prompt_segment $color $PRIMARY_FG
     print -Pn " $(basename $VIRTUAL_ENV) "
   fi
@@ -152,21 +144,47 @@ prompt_virtualenv() {
 # Work with prompt_newline
 prompt_begin() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{cyan}%}╭%{%f%}"
-    print -n "%{%F{cyan}%}\ue0b2%{%f%}"
+    print -n "%{%F{173}%}╭%{%f%}"
   else
     print -n "%{%F{red}%}╭%{%f%}"
-    print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
+    # print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
   fi
+  print -n "%{%F{173}%}\ue0b2%{%f%}"
 }
 
 # Newline
 prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{cyan}%}\n╰%{%f%}"
+    print -n "%{%F{173}%}\n╰%{%f%}"
   else
     print -n "%{%F{red}%}\n╰%{%f%}"
   fi
+}
+
+# Status on the right
+prompt_right() {
+  # Retrun value of the last command
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    print -n "%{%F{$PRIMARY_FG}%}\ue0b2"
+    print -n "%{%F{red}%K{$PRIMARY_FG}%} $CROSS $RETVAL %{%f%k%}"
+    print -n "%{%F{$PRIMARY_FG}%K{088}%}\ue0b0"
+  else
+    print -n "%{%F{088}%}\ue0b2"
+  fi
+
+  # Time
+  if [ ! "$REC" ]; then
+    local hour=$(date +"%H")
+    # [6, 18) is day
+    if [ $hour -ge 6 -a $hour -lt 18 ]; then
+      local period="\uf185 "
+    else
+      local period="\uf186 "
+    fi
+  fi
+  print -n "%{%F{white}%K{088}%} %B$period$(date +"%H:%M")%b %{%f%k%}"
+  print -n "%{%F{088}%}\ue0b0"
 }
 
 ## Main prompt
@@ -186,6 +204,7 @@ prompt_agnoster_main() {
 prompt_agnoster_precmd() {
   vcs_info
   PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
+  RPROMPT='$(prompt_right)'
 }
 
 prompt_agnoster_setup() {
