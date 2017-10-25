@@ -74,16 +74,8 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: no more user@hostname, instead, time and platform stat
+# Context: no more user@hostname, instead, platform info and cpu matrics
 prompt_context() {
-  local hour=$(date +"%H")
-  # [6, 18) is day
-  if [ $hour -ge 6 -a $hour -lt 18 ]; then
-    local period="\uf185"
-  else
-    local period="\uf186"
-  fi
-
   # MSYS2 并不支持 /proc/loadavg 这出，所以这里换成了喜闻乐见的 percentage
   # 我用 Go 写了一个程序(下面的 cpu)来获取 WMIC 提供的 CPU 信息并格式化。
   # wmic 的输出是 CRLF 换行的，而且还不是 UTF-8，这个东西害我调试了老半天。
@@ -93,17 +85,15 @@ prompt_context() {
   # $FAST 为 2 时为暴走模式，关闭 CPU 和 git 信息查询。
   if [ ! "$FAST" ]; then
     local load=$(cpu)%%
-    prompt_segment magenta black " \uf292 $cmdcount \ue0b1 \ue70f $load "
+    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $load "
   else
-    prompt_segment magenta black " \uf292 $cmdcount \ue0b1 \ue70f "
+    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f "
     if [[ "$FAST" == "1" ]]; then
       prompt_segment red black " \uf490 " # fire
     else
       prompt_segment red black " \uf0e7 " # lightening
     fi
   fi
-
-  prompt_segment yellow white " %B$period $(date +"%H:%M")%b "
 }
 
 # Git: branch/detached head, dirty status
@@ -143,7 +133,6 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS $RETVAL"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}$GEAR"
 
@@ -162,21 +151,44 @@ prompt_virtualenv() {
 # Work with prompt_newline
 prompt_begin() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{magenta}%}╭%{%f%}"
-    print -n "%{%F{magenta}%}\ue0b2%{%f%}"
+    print -n "%{%F{169}%}╭%{%f%}"
   else
     print -n "%{%F{red}%}╭%{%f%}"
-    print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
   fi
+  print -n "%{%F{169}%}\ue0b2%{%f%}"
 }
 
 # Newline
 prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{magenta}%}\n╰%{%f%}"
+    print -n "%{%F{169}%}\n╰%{%f%}"
   else
     print -n "%{%F{red}%}\n╰%{%f%}"
   fi
+}
+
+# Status on the right
+prompt_right() {
+  # Retrun value of the last command
+  RETVAL=$?
+  if [ $RETVAL -ne 0 ]; then
+    print -n "%{%F{$PRIMARY_FG}%}\ue0b2"
+    print -n "%{%F{red}%K{$PRIMARY_FG}%} $CROSS $RETVAL %{%f%k%}"
+    print -n "%{%F{$PRIMARY_FG}%K{088}%}\ue0b0"
+  else
+    print -n "%{%F{088}%}\ue0b2"
+  fi
+
+  # Time
+  local hour=$(date +"%H")
+  # [6, 18) is day
+  if [ $hour -ge 6 -a $hour -lt 18 ]; then
+    local period="\uf185"
+  else
+    local period="\uf186"
+  fi
+  print -n "%{%F{white}%K{088}%} %B$period $(date +"%H:%M")%b %{%f%k%}"
+  print -n "%{%F{088}%}\ue0b0"
 }
 
 ## Main prompt
@@ -200,6 +212,7 @@ prompt_agnoster_precmd() {
     vcs_info
   fi
   PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
+  RPROMPT='$(prompt_right)'
 }
 
 prompt_agnoster_setup() {
