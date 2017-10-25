@@ -27,7 +27,7 @@
 
 CURRENT_BG='NONE'
 if [[ -z "$PRIMARY_FG" ]]; then
-	PRIMARY_FG=233
+  PRIMARY_FG=233
 fi
 
 # Characters
@@ -152,9 +152,11 @@ prompt_virtualenv() {
 # Work with prompt_newline
 prompt_begin() {
   if [ $RETVAL -eq 0 ]; then
-    prompt_segment black cyan "╭─"
+    print -n "%{%F{cyan}%}╭%{%f%}"
+    print -n "%{%F{cyan}%}\ue0b2%{%f%}"
   else
-    prompt_segment black red "╭─"
+    print -n "%{%F{red}%}╭%{%f%}"
+    print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
   fi
 }
 
