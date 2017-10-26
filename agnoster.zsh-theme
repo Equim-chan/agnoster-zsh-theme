@@ -123,7 +123,7 @@ prompt_git() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue $PRIMARY_FG ' %~ '
+  prompt_segment blue black " %$(( $COLUMNS - 45 ))<...<%~%<< "
 }
 
 # Status:
@@ -187,7 +187,7 @@ prompt_right() {
   else
     local period="\uf186"
   fi
-  print -n "%{%F{white}%K{088}%} %B$period $(date +"%H:%M")%b %{%f%k%}"
+  print -n "%{%F{white}%K{088}%B%} $period $(date +"%H:%M") %{%b%f%k%}"
   print -n "%{%F{088}%}\ue0b0"
 }
 
