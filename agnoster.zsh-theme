@@ -76,20 +76,16 @@ prompt_end() {
 
 # Context: no more user@hostname, instead, platform info and cpu metrics
 prompt_context() {
-  # MSYS2 并不支持 /proc/loadavg 这出，所以这里换成了喜闻乐见的 percentage
-  # 我用 Go 写了一个程序(下面的 cpu)来获取 WMIC 提供的 CPU 信息并格式化。
-  # wmic 的输出是 CRLF 换行的，而且还不是 UTF-8，这个东西害我调试了老半天。
-  # 尽管我已经尽力去优化了，这个消耗还是百毫秒级的。
-  # 鉴于此，我提供了 $FAST 变量来切换高速模式。
-  # $FAST 为 1 时为快速模式，关闭 CPU 信息查询。
-  # $FAST 为 2 时为暴走模式，关闭 CPU 和 git 信息查询。
-  # 
-  # 更新：由于 CPU 查询实在太慢，这里给了一个 alternative，改为查询内存
+  # /proc/loadavg 似乎不能直接访问(结果不会刷新)，要通过 uptime(1) 才行，很诡异
+  # 由于 CPU 查询实在太慢，这里给了一个 alternative，改为查询内存
+  # $FAST 为 1 时为快速模式，关闭 Metrics 信息查询。
+  # $FAST 为 2 时为暴走模式，关闭 Metrics 和 git 信息查询。
   if [ ! "$FAST" ]; then
     if [[ "$METRICS" == "MEM" ]]; then
       local val=$(free -mt | tail -n 1 | awk '{ printf("%'"'"'dM", $3) }')
     else
-      local val=$(cpu)%%
+      local val=$(uptime | awk '{ print $(NF-2) }')
+      val=${val%,}
     fi
     prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $val "
   else
