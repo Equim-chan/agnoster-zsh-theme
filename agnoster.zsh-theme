@@ -74,7 +74,7 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: no more user@hostname, instead, platform info and cpu matrics
+# Context: no more user@hostname, instead, platform info and cpu metrics
 prompt_context() {
   # MSYS2 并不支持 /proc/loadavg 这出，所以这里换成了喜闻乐见的 percentage
   # 我用 Go 写了一个程序(下面的 cpu)来获取 WMIC 提供的 CPU 信息并格式化。
@@ -83,9 +83,15 @@ prompt_context() {
   # 鉴于此，我提供了 $FAST 变量来切换高速模式。
   # $FAST 为 1 时为快速模式，关闭 CPU 信息查询。
   # $FAST 为 2 时为暴走模式，关闭 CPU 和 git 信息查询。
+  # 
+  # 更新：由于 CPU 查询实在太慢，这里给了一个 alternative，改为查询内存
   if [ ! "$FAST" ]; then
-    local load=$(cpu)%%
-    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $load "
+    if [[ "$METRICS" == "MEM" ]]; then
+      local val=$(free -mt | tail -n 1 | awk '{ printf("%'"'"'dM", $3) }')
+    else
+      local val=$(cpu)%%
+    fi
+    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $val "
   else
     prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f "
     if [[ "$FAST" == "1" ]]; then
