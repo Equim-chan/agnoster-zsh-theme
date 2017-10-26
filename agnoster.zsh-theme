@@ -74,7 +74,7 @@ prompt_end() {
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: no more user@hostname, instead, time and platform info and cpu matrics
+# Context: no more user@hostname, instead, time and platform info and cpu metrics
 prompt_context() {
   # REC can be set when running asciinema
   if [ "$REC" ]; then
