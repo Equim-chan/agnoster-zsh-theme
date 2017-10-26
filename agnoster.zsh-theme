@@ -115,7 +115,7 @@ prompt_git() {
 
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue $PRIMARY_FG ' %~ '
+  prompt_segment blue black " %$(( $COLUMNS - 45 ))<...<%~%<< "
 }
 
 # Status:
@@ -125,7 +125,6 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  # [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}$CROSS $RETVAL"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{173}%}$GEAR"
 
@@ -183,7 +182,7 @@ prompt_right() {
       local period="\uf186 "
     fi
   fi
-  print -n "%{%F{white}%K{088}%} %B$period$(date +"%H:%M")%b %{%f%k%}"
+  print -n "%{%F{white}%K{088}%B%} $period$(date +"%H:%M") %{%b%f%k%}"
   print -n "%{%F{088}%}\ue0b0"
 }
 
