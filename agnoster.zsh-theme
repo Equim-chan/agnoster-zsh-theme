@@ -75,9 +75,11 @@ prompt_end() {
 # Each component will draw itself, and hide itself if no information needs to be shown
 
 # Context: no more user@hostname, instead, platform info and cpu metrics
+CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
 prompt_context() {
   # /proc/loadavg 似乎不能直接访问(结果不会刷新)，要通过 uptime(1) 才行，很诡异
-  # 由于 CPU 查询实在太慢，这里给了一个 alternative，改为查询内存
+  # 另外，CPU 查询的速度确实较慢，这里提供了一个查询内存的 alternative
+  # 如果还想要更快的速度，可以设置 $FAST
   # $FAST 为 1 时为快速模式，关闭 Metrics 信息查询。
   # $FAST 为 2 时为暴走模式，关闭 Metrics 和 git 信息查询。
   if [ ! "$FAST" ]; then
@@ -85,7 +87,7 @@ prompt_context() {
       local val=$(free -mt | tail -n 1 | awk '{ printf("%'"'"'dM", $3) }')
     else
       local val=$(uptime | awk '{ print $(NF-2) }')
-      val=${val%,}
+      val=$(printf "%.2f" $(( ${val%,} / $CORES ))) # 这是基于测试得来的，很玄学
     fi
     prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $val "
   else
