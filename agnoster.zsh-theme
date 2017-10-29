@@ -75,7 +75,6 @@ prompt_end() {
 # Each component will draw itself, and hide itself if no information needs to be shown
 
 # Context: no more user@hostname, instead, platform info and cpu metrics
-CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
 prompt_context() {
   # /proc/loadavg 似乎不能直接访问(结果不会刷新)，要通过 uptime(1) 才行，很诡异
   # 另外，CPU 查询的速度确实较慢，这里提供了一个查询内存的 alternative
@@ -84,10 +83,11 @@ prompt_context() {
   # $FAST 为 2 时为暴走模式，关闭 Metrics 和 git 信息查询。
   if [ ! "$FAST" ]; then
     if [[ "$METRICS" == "MEM" ]]; then
-      local val=$(free -mt | tail -n 1 | awk '{ printf("%'"'"'dM", $3) }')
+      local val=$(free -mt | tail -n 1 | awk "{ printf(\"%'dM\", \$3) }")
+    elif [[ "$METRICS" == "CPU_AS_ONE_CORE" ]]; then
+      local val=$(loadavg_as_one_core)
     else
-      local val=$(uptime | awk '{ print $(NF-2) }')
-      val=$(printf "%.2f" $(( ${val%,} / $CORES ))) # 这是基于测试得来的，很玄学
+      local val=$(loadavg)
     fi
     prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $val "
   else
@@ -167,7 +167,7 @@ prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
     print -n "%{%F{169}%}\n╰%{%f%}"
   else
-    print -n "%{%F{red}%}\n╰%{%f%}"
+    print -n "%{%F{red}%}\n╰\uf00d%{%f%}"
   fi
 }
 
