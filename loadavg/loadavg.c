@@ -42,10 +42,8 @@ int main()
         FATAL(1, "bad data in /proc/loadavg\n");
     }
 
-#if defined AS_ONE_CORE && \
-    (defined __CYGWIN__ || defined __MINGW32__ || defined _WIN32)
-    long cpu_count = sysconf(_SC_NPROCESSORS_ONLN);
-    printf("%.2lf", avg_1 / cpu_count);
+#ifdef AS_ONE_CORE
+    printf("%.2lf", avg_1 / sysconf(_SC_NPROCESSORS_ONLN));
 #else
     printf("%.2lf", avg_1);
 #endif
