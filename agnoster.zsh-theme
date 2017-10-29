@@ -146,7 +146,6 @@ prompt_begin() {
     print -n "%{%F{173}%}╭%{%f%}"
   else
     print -n "%{%F{red}%}╭%{%f%}"
-    # print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
   fi
   print -n "%{%F{173}%}\ue0b2%{%f%}"
 }
@@ -156,7 +155,7 @@ prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
     print -n "%{%F{173}%}\n╰%{%f%}"
   else
-    print -n "%{%F{red}%}\n╰%{%f%}"
+    print -n "%{%F{red}%}\n╰\uf00d%{%f%}"
   fi
 }
 
