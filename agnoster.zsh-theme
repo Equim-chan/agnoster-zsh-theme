@@ -128,7 +128,12 @@ prompt_status() {
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{173}%}$GEAR"
 
-  [[ -n "$symbols" ]] && prompt_segment $PRIMARY_FG default " $symbols "
+  if [[ -n "$symbols" ]]; then
+    print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
+    prompt_segment $PRIMARY_FG default " $symbols "
+  else
+    print -n "%{%F{173}%}\ue0b2%{%f%}"
+  fi
 }
 
 # Display current virtual environment
@@ -147,7 +152,6 @@ prompt_begin() {
   else
     print -n "%{%F{red}%}╭%{%f%}"
   fi
-  print -n "%{%F{173}%}\ue0b2%{%f%}"
 }
 
 # Newline
