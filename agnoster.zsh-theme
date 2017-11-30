@@ -78,14 +78,13 @@ prompt_end() {
 prompt_context() {
   # REC can be set when running asciinema
   if [ "$REC" ]; then
-    local hash_sym="#"
+    local arch_sym="# " # 真·arch
   else
-    local hash_sym="\uf292 "
-    local logo="\uf300 "
+    local arch_sym="\uf300 "
   fi
 
   local load=$(awk '{print $1}' /proc/loadavg)
-  prompt_segment 173 black " $hash_sym$cmdcount \ue0b1 $logo$load "
+  prompt_segment 173 black " $arch_sym$cmdcount \ue0b1 $load "
 }
 
 # Git: branch/detached head, dirty status
@@ -157,9 +156,17 @@ prompt_begin() {
 # Newline
 prompt_newline() {
   if [ $RETVAL -eq 0 ]; then
-    print -n "%{%F{173}%}\n╰%{%f%}"
+    if [ "$REC" ]; then
+      print -n "%{%F{173}%}\n╰>%{%f%}"
+    else
+      print -n "%{%F{173}%}\n╰%{%f%}"
+    fi
   else
-    print -n "%{%F{red}%}\n╰\uf00d%{%f%}"
+    if [ "$REC" ]; then
+      print -n "%{%F{red}%}\n╰×%{%f%}"
+    else
+      print -n "%{%F{red}%}\n╰\uf00d%{%f%}"
+    fi
   fi
 }
 
