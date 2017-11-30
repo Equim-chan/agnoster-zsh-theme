@@ -89,9 +89,9 @@ prompt_context() {
     else
       local val=$(loadavg)
     fi
-    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f $val "
+    prompt_segment 169 black " \ue70f $cmdcount \ue0b1 $val "
   else
-    prompt_segment 169 black " \uf292 $cmdcount \ue0b1 \ue70f "
+    prompt_segment 169 black " \ue70f $cmdcount "
     if [[ "$FAST" == "1" ]]; then
       prompt_segment red black " \uf490 " # fire
     else
