@@ -83,7 +83,7 @@ prompt_context() {
   # $FAST 为 2 时为暴走模式，关闭 Metrics 和 git 信息查询。
   if [ ! "$FAST" ]; then
     if [[ "$METRICS" == "MEM" ]]; then
-      local val=$(free -mt | tail -n 1 | awk "{ printf(\"%'dM\", \$3) }")
+      local val=$(free | grep Mem | awk '{printf("%.2f%%%%", $3/$2 * 100.0)}')
     elif [[ "$METRICS" == "CPU_AS_ONE_CORE" ]]; then
       local val=$(loadavg_as_one_core)
     else
