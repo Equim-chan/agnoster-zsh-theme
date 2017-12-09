@@ -35,7 +35,6 @@ SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
-CROSS="\uf00d"
 LIGHTNING="\u26a1"
 GEAR="\uf423"
 
@@ -176,7 +175,11 @@ prompt_right() {
   RETVAL=$?
   if [ $RETVAL -ne 0 ]; then
     print -n "%{%F{$PRIMARY_FG}%}\ue0b2"
-    print -n "%{%F{red}%K{$PRIMARY_FG}%} $CROSS $RETVAL %{%f%k%}"
+    if [ "$REC" ]; then
+      print -n "%{%F{red}%K{$PRIMARY_FG}%} \uf00d $RETVAL %{%f%k%}" # 
+    else
+      print -n "%{%F{red}%K{$PRIMARY_FG}%} × $RETVAL %{%f%k%}"
+    fi
     print -n "%{%F{$PRIMARY_FG}%K{088}%}\ue0b0"
   else
     print -n "%{%F{088}%}\ue0b2"
