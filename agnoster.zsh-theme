@@ -35,7 +35,7 @@ SEGMENT_SEPARATOR="\ue0b0"
 PLUSMINUS="\u00b1"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
-CROSS="×"
+CROSS="\uf00d"
 LIGHTNING="\u26a1"
 GEAR="\uf423"
 
@@ -159,13 +159,13 @@ prompt_newline() {
     if [ "$REC" ]; then
       print -n "%{%F{173}%}\n╰>%{%f%}"
     else
-      print -n "%{%F{173}%}\n╰%{%f%}"
+      print -n "%{%F{173}%}\n╰\uf101%{%f%}" # 
     fi
   else
     if [ "$REC" ]; then
       print -n "%{%F{red}%}\n╰×%{%f%}"
     else
-      print -n "%{%F{red}%}\n╰\uf00d%{%f%}"
+      print -n "%{%F{red}%}\n╰\ue009%{%f%}" # 
     fi
   fi
 }
