@@ -90,11 +90,11 @@ prompt_context() {
     fi
     prompt_segment 169 black " \ue70f $cmdcount \ue0b1 $val "
   else
-    prompt_segment 169 black " \ue70f $cmdcount "
+    prompt_segment 169 black " \ue70f $cmdcount " # 
     if [[ "$FAST" == "1" ]]; then
-      prompt_segment red black " \uf490 " # fire
+      prompt_segment red black " \uf490 " # 
     else
-      prompt_segment red black " \uf0e7 " # lightening
+      prompt_segment red black " \uf0e7 " # 
     fi
   fi
 }
@@ -130,18 +130,17 @@ prompt_dir() {
 }
 
 # Status:
-# - was there an error
 # - am I root
 # - are there background jobs?
 prompt_status() {
   local symbols
   symbols=()
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{169}%}$GEAR"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%} $LIGHTNING "
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="%{%F{169}%} $GEAR "
 
   if [[ -n "$symbols" ]]; then
     print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
-    prompt_segment $PRIMARY_FG default " $symbols "
+    prompt_segment $PRIMARY_FG default "$symbols"
   else
     print -n "%{%F{169}%}\ue0b2%{%f%}"
   fi
@@ -182,10 +181,10 @@ prompt_right() {
   local hour=$(date +"%H")
   # [6, 18) is day
   if [ $hour -ge 6 -a $hour -lt 18 ]; then
-    local time_sym="\uf185"
+    local time_sym="\uf185"   # 
     local time_color_bg="130" # dark yellow
   else
-    local time_sym="\uf186"
+    local time_sym="\uf186"   # 
     local time_color_bg="088" # dark red
   fi
 
