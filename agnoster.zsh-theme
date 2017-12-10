@@ -32,7 +32,7 @@ fi
 
 # Characters
 SEGMENT_SEPARATOR="\ue0b0"
-PLUSMINUS="\u00b1"
+PLUSMINUS="\uf040"
 BRANCH="\ue0a0"
 DETACHED="\u27a6"
 LIGHTNING="\u26a1"
@@ -96,7 +96,7 @@ prompt_git() {
   if [[ -n "$ref" ]]; then
     if is_dirty; then
       color=yellow
-      ref="${ref} $PLUSMINUS"
+      ref="${ref} $PLUSMINUS "
     else
       color=green
       ref="${ref} "
