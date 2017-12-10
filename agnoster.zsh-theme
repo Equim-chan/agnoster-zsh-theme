@@ -79,7 +79,7 @@ prompt_context() {
   if [ "$REC" ]; then
     local arch_sym="# " # 真·arch
   else
-    local arch_sym="\uf300 "
+    local arch_sym="\uf300 " # 
   fi
 
   local load=$(awk '{print $1}' /proc/loadavg)
@@ -123,12 +123,12 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}$LIGHTNING"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{173}%}$GEAR"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%} $LIGHTNING "
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{173}%} $GEAR "
 
   if [[ -n "$symbols" ]]; then
     print -n "%{%F{$PRIMARY_FG}%}\ue0b2%{%f%}"
-    prompt_segment $PRIMARY_FG default " $symbols "
+    prompt_segment $PRIMARY_FG default "$symbols"
   else
     print -n "%{%F{173}%}\ue0b2%{%f%}"
   fi
@@ -177,10 +177,10 @@ prompt_right() {
   local hour=$(date +"%H")
   # [6, 18) is day
   if [ $hour -ge 6 -a $hour -lt 18 ]; then
-    local time_sym="\uf185"
+    local time_sym="\uf185"   # 
     local time_color_bg="130" # dark yellow
   else
-    local time_sym="\uf186"
+    local time_sym="\uf186"   # 
     local time_color_bg="088" # dark red
   fi
 
