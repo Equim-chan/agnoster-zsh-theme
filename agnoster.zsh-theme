@@ -178,7 +178,7 @@ prompt_right() {
   # [6, 18) is day
   if [ $hour -ge 6 -a $hour -lt 18 ]; then
     local time_sym="\uf185"
-    local time_color_bg="017" # dark blue
+    local time_color_bg="130" # dark yellow
   else
     local time_sym="\uf186"
     local time_color_bg="088" # dark red
