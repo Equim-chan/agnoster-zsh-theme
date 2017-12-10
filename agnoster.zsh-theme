@@ -171,32 +171,29 @@ prompt_newline() {
 
 # Status on the right
 prompt_right() {
-  # Retrun value of the last command
   RETVAL=$?
-  if [ $RETVAL -ne 0 ]; then
-    print -n "%{%F{$PRIMARY_FG}%}\ue0b2"
-    if [ "$REC" ]; then
-      print -n "%{%F{red}%K{$PRIMARY_FG}%} \uf00d $RETVAL %{%f%k%}" # 
-    else
-      print -n "%{%F{red}%K{$PRIMARY_FG}%} × $RETVAL %{%f%k%}"
-    fi
-    print -n "%{%F{$PRIMARY_FG}%K{088}%}\ue0b0"
-  else
-    print -n "%{%F{088}%}\ue0b2"
-  fi
 
   # Time
-  if [ ! "$REC" ]; then
-    local hour=$(date +"%H")
-    # [6, 18) is day
-    if [ $hour -ge 6 -a $hour -lt 18 ]; then
-      local period="\uf185 "
-    else
-      local period="\uf186 "
-    fi
+  local hour=$(date +"%H")
+  # [6, 18) is day
+  if [ $hour -ge 6 -a $hour -lt 18 ]; then
+    local time_sym="\uf185"
+    local time_color_bg="017" # dark blue
+  else
+    local time_sym="\uf186"
+    local time_color_bg="088" # dark red
   fi
-  print -n "%{%F{white}%K{088}%B%} $period$(date +"%H:%M") %{%b%f%k%}"
-  print -n "%{%F{088}%}\ue0b0"
+
+  if [ $RETVAL -ne 0 ]; then
+    print -n "%{%F{$PRIMARY_FG}%}\ue0b2"
+    print -n "%{%F{red}%K{$PRIMARY_FG}%} \uf00d $RETVAL %{%f%k%}" # 
+    print -n "%{%F{$PRIMARY_FG}%K{$time_color_bg}%}\ue0b0"
+  else
+    print -n "%{%F{$time_color_bg}%}\ue0b2"
+  fi
+
+  print -n "%{%F{white}%K{$time_color_bg}%B%} $time_sym $(date +"%H:%M") %{%b%f%k%}"
+  print -n "%{%F{$time_color_bg}%}\ue0b0"
 }
 
 ## Main prompt
