@@ -221,7 +221,10 @@ prompt_agnoster_precmd() {
   if [[ "$FAST" != "2" ]]; then
     vcs_info
   fi
-  PROMPT='%{%f%b%k%}$(prompt_agnoster_main) '
+  if [ "$NEWLINE" ]; then
+    local FEED=$'\n'
+  fi
+  PROMPT=$FEED'%{%f%b%k%}$(prompt_agnoster_main) '
   RPROMPT='$(prompt_right)'
 }
 
